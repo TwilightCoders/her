@@ -44,7 +44,7 @@ module Her
 
           filtered_attributes.merge!(embedded_params(attributes))
 
-          if her_api.options[:send_only_modified_attributes]
+          if her_api.options[:send_only_modified_attributes] && changes.any?
             filtered_attributes.slice! *changes.keys.map(&:to_sym)
           end
 

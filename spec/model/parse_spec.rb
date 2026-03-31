@@ -534,6 +534,12 @@ describe Her::Model::Parse do
       user.first_name = "Someone"
       expect(user.to_params).to eql(user: { first_name: "Someone" })
     end
+
+    it "sends all attributes when changes is empty (custom actions)" do
+      user = Foo::User.find 1
+      params = Foo::User.to_params(user.attributes)
+      expect(params).to eql(user: { id: 1, first_name: "Gooby", last_name: "Pls" })
+    end
   end
 
   context 'when passed a non-Her ActiveModel instance' do
