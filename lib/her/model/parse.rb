@@ -42,7 +42,7 @@ module Her
             memo[key.to_sym] = value
           end
 
-          filtered_attributes.merge!(embeded_params(attributes))
+          filtered_attributes.merge!(embedded_params(attributes))
 
           if her_api.options[:send_only_modified_attributes]
             filtered_attributes.slice! *changes.keys.map(&:to_sym)
@@ -60,7 +60,7 @@ module Her
         end
 
         # @private
-        def embeded_params(attributes)
+        def embedded_params(attributes)
           associations.values.flatten.each_with_object({}) do |definition, hash|
             value = case association = attributes[definition[:name]]
                     when Her::Collection, Array

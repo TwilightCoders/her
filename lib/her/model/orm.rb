@@ -105,7 +105,7 @@ module Her
         self
       end
 
-      # Initializes +attribute+ to zero if +nil+ and substracts the value passed as
+      # Initializes +attribute+ to zero if +nil+ and subtracts the value passed as
       # +by+ (default is 1). The decrement is performed directly on the
       # underlying attribute, no setter is invoked. Only makes sense for
       # number-based attributes. Returns +self+.

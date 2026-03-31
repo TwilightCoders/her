@@ -31,7 +31,7 @@ describe Her::Model::Relation do
         spawn_model "Foo::User"
       end
 
-      it "doesn't fetch the data immediatly" do
+      it "doesn't fetch the data immediately" do
         expect(Foo::User).to receive(:request).never
         @users = Foo::User.where(admin: 1)
       end

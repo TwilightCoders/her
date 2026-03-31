@@ -1,6 +1,6 @@
 module Her
   module Model
-    # This module includes basic functionnality to Her::Model
+    # This module includes basic functionality to Her::Model
     module Base
       extend ActiveSupport::Concern
 
@@ -16,7 +16,7 @@ module Her
 
       # Returns
       # * the value of the attribute_name attribute if it's in orm data
-      # * the resource/collection corrsponding to attribute_name if it's an association
+      # * the resource/collection corresponding to attribute_name if it's an association
       #
       # @private
       def [](attribute_name)
