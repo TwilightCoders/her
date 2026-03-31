@@ -940,6 +940,29 @@ describe Her::Model::Associations do
       end
     end
 
+    context "with #build appending to existing collection" do
+      before do
+        Her::API.setup url: "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { [200, {}, { id: 1 }.to_json] }
+            stub.get("/users/1/comments") { [200, {}, [{ id: 1, body: "Existing", user_id: 1 }].to_json] }
+          end
+        end
+
+        Foo::User.use_api Her::API.default_api
+        Foo::Comment.use_api Her::API.default_api
+      end
+
+      it "appends built resource to the existing collection" do
+        user = Foo::User.find(1)
+        expect(user.comments.length).to eq(1)
+        user.comments.build(body: "New!")
+        expect(user.comments.length).to eq(2)
+      end
+    end
+
     context "with #create when collection already has data" do
       before do
         Her::API.setup url: "https://api.example.com" do |builder|

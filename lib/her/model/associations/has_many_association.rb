@@ -50,7 +50,14 @@ module Her
         #   new_comment = user.comments.build(:body => "Hello!")
         #   new_comment # => #<Comment user_id=1 body="Hello!">
         def build(attributes = {})
-          @klass.build(attributes.merge(foreign_key => @parent.id))
+          resource = @klass.build(attributes.merge(foreign_key => @parent.id))
+
+          collection = @cached_result || @parent.attributes[@name] || Her::Collection.new
+          collection << resource
+          @cached_result = collection
+          @parent.attributes[@name] = collection
+
+          resource
         end
 
         # Create a new object, save it and add it to the associated collection
@@ -71,11 +78,10 @@ module Her
         def create(attributes = {})
           resource = build(attributes)
 
-          if resource.save
-            collection = @cached_result || @parent.attributes[@name] || Her::Collection.new
-            collection << resource
-            @cached_result = collection
-            @parent.attributes[@name] = collection
+          unless resource.save
+            # Remove the built resource from the collection if save failed
+            @cached_result&.delete(resource)
+            @parent.attributes[@name]&.delete(resource)
           end
 
           resource
