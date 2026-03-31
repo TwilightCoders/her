@@ -6,9 +6,10 @@ describe "Her::Model and ActiveModel::Validations" do
   context "validating attributes" do
     before do
       spawn_model "Foo::User" do
-        attributes :fullname, :email
+        attributes :fullname, :email, :age
         validates_presence_of :fullname
         validates_presence_of :email
+        validates_numericality_of :age
       end
     end
 
@@ -19,6 +20,7 @@ describe "Her::Model and ActiveModel::Validations" do
       expect(user.errors.full_messages).to include("Email can't be blank")
       user.fullname = "Tobias Fünke"
       user.email = "tobias@bluthcompany.com"
+      user.age = 35
       expect(user).to be_valid
     end
   end

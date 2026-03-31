@@ -44,6 +44,12 @@ module Her
     include ActiveModel::Conversion
     include ActiveModel::Dirty
 
+    # Override ActiveModel::Dirty's attribute_changed_in_place? to use
+    # Her's change tracking. This allows validates_numericality_of to work.
+    def attribute_changed_in_place?(attribute_name)
+      !changes[attribute_name.to_s].nil?
+    end
+
     # Class methods
     included do
       # Assign the default API
