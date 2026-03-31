@@ -665,6 +665,9 @@ describe Her::Model::Associations do
           builder.adapter :test do |stub|
             stub.get("/users/1") { [200, {}, { user: { id: 1, name: "Tobias Fünke", comments: [{ id: 2, body: "Tobias, you blow hard!", user_id: 1 }, { id: 3, body: "I wouldn't mind kissing that man between the cheeks, so to speak", user_id: 1 }], role: { id: 1, body: "Admin" }, organization: { id: 1, name: "Bluth Company" }, organization_id: 1 } }.to_json] }
             stub.get("/users/1/comments") { [200, {}, { comments: [{ id: 4, body: "They're having a FIRESALE?" }] }.to_json] }
+            stub.get("/users/1/role") { [200, {}, { role: { id: 3, body: "User" } }.to_json] }
+            stub.get("/users/2") { [200, {}, { user: { id: 2, name: "Lindsay Fünke", organization_id: 1 } }.to_json] }
+            stub.get("/users/2/role") { [200, {}, { role: { id: 4, body: "Viewer" } }.to_json] }
             stub.get("/organizations/1") { [200, {}, { organization: { id: 1, name: "Bluth Company Foo" } }.to_json] }
           end
         end
@@ -696,6 +699,19 @@ describe Her::Model::Associations do
 
       it "fetches belongs_to data even if it was included, only if called with parameters" do
         expect(user.organization.where(foo_id: 1).name).to eq("Bluth Company Foo")
+      end
+
+      it "maps included data through has_one with AMS format" do
+        expect(user.role).to be_a(Foo::Role)
+        expect(user.role.id).to eq(1)
+        expect(user.role.body).to eq("Admin")
+      end
+
+      it "fetches has_one data not included with AMS format" do
+        user2 = Foo::User.find(2)
+        expect(user2.role).to be_a(Foo::Role)
+        expect(user2.role.id).to eq(4)
+        expect(user2.role.body).to eq("Viewer")
       end
 
       it "includes has_many relationships in params by default" do
