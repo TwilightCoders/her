@@ -52,7 +52,8 @@ module Her
         # TODO: This only merges the id of the parents, handle the case
         #       where this is more deeply nested
         def build(attributes = {})
-          @klass.build(attributes.merge(:"#{@parent.singularized_resource_name}_id" => @parent.id))
+          foreign_key = @opts[:foreign_key] || :"#{@parent.singularized_resource_name}_id"
+          @klass.build(attributes.merge(foreign_key => @parent.id))
         end
 
         # Create a new object, save it and add it to the associated collection

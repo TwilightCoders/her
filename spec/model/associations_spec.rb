@@ -884,6 +884,20 @@ describe Her::Model::Associations do
       end
     end
 
+    context "with #build using custom foreign_key" do
+      before do
+        spawn_model "Foo::Article"
+        spawn_model "Foo::User" do
+          has_many :articles, foreign_key: :creator_id
+        end
+      end
+
+      it "uses the declared foreign_key instead of convention" do
+        article = Foo::User.new(id: 5).articles.build(title: "Hello")
+        expect(article.creator_id).to eq(5)
+      end
+    end
+
     context "with #create" do
       let(:user) { Foo::User.find(10) }
       let(:comment) { user.comments.create(body: "Hello!") }
