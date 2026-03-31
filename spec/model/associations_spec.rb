@@ -502,6 +502,11 @@ describe Her::Model::Associations do
         expect(new_user.role).to be_nil
         expect(new_user.organization).to be_nil
       end
+
+      it "reports nil associations as blank" do
+        expect(new_user.role.blank?).to be true
+        expect(new_user.organization.blank?).to be true
+      end
     end
 
     context "when foreign_key is nil" do
