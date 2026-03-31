@@ -52,6 +52,35 @@ describe Her::Model::Introspection do
       end
     end
 
+    describe "#inspect with cyclic associations" do
+      before do
+        Her::API.setup url: "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.adapter :test do |stub|
+            stub.get("/users/1") { [200, {}, { id: 1, name: "Tobias", comments: [{ id: 2, body: "Hey!", user_id: 1 }] }.to_json] }
+          end
+        end
+
+        spawn_model "Foo::User" do
+          has_many :comments, class_name: "Foo::Comment"
+        end
+        spawn_model "Foo::Comment" do
+          belongs_to :user, class_name: "Foo::User"
+        end
+      end
+
+      it "does not infinitely recurse" do
+        user = Foo::User.find(1)
+        expect { Timeout.timeout(5) { user.inspect } }.not_to raise_error
+      end
+
+      it "truncates cyclic references with ..." do
+        user = Foo::User.find(1)
+        output = user.inspect
+        expect(output).to include("Foo::User")
+      end
+    end
+
     describe "#inspect with errors in resource path" do
       it "prints the resource path as “unknown”" do
         @comment = Foo::Comment.where(project_id: 1).first
