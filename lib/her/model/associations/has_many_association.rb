@@ -74,8 +74,10 @@ module Her
           resource = build(attributes)
 
           if resource.save
-            @parent.attributes[@name] ||= Her::Collection.new
-            @parent.attributes[@name] << resource
+            collection = @cached_result || @parent.attributes[@name] || Her::Collection.new
+            collection << resource
+            @cached_result = collection
+            @parent.attributes[@name] = collection
           end
 
           resource

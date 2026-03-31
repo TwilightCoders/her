@@ -940,6 +940,30 @@ describe Her::Model::Associations do
       end
     end
 
+    context "with #create when collection already has data" do
+      before do
+        Her::API.setup url: "https://api.example.com" do |builder|
+          builder.use Her::Middleware::FirstLevelParseJSON
+          builder.use Faraday::Request::UrlEncoded
+          builder.adapter :test do |stub|
+            stub.get("/users/10") { [200, {}, { id: 10 }.to_json] }
+            stub.get("/users/10/comments") { [200, {}, [{ id: 1, body: "Existing", user_id: 10 }].to_json] }
+            stub.post("/comments") { |env| [200, {}, { id: 2, body: Faraday::Utils.parse_query(env[:body])["body"], user_id: 10 }.to_json] }
+          end
+        end
+
+        Foo::User.use_api Her::API.default_api
+        Foo::Comment.use_api Her::API.default_api
+      end
+
+      it "appends to the existing collection" do
+        user = Foo::User.find(10)
+        expect(user.comments.length).to eq(1)
+        user.comments.create(body: "New!")
+        expect(user.comments.length).to eq(2)
+      end
+    end
+
     context "with #new" do
       let(:user) { Foo::User.new(name: "vic", comments: [comment]) }
 
